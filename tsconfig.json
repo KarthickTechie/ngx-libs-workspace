@@ -11,6 +11,14 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
+    "paths": {
+      "ngx-super-cards": [
+        "dist/ngx-super-cards"
+      ],
+      "ngx-super-dashboard": [
+        "dist/ngx-super-dashboard"
+      ]
+    },
     "declaration": false,
     "downlevelIteration": true,
     "experimentalDecorators": true,

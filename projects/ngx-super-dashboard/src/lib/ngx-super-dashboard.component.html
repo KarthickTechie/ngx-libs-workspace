@@ -1,0 +1,35 @@
+<div>
+  <div *ngIf="dynamicForm.value.length != 0">
+    <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit(dynamicForm.value)">
+      <div class="row">
+        <div
+          class="form-group col-md-3"
+          *ngFor="let field of dynamicFormFieldData; let i = index"
+        >
+          <select
+            class="form-control m-1"
+            formControlName="{{ field.formControlKey }} -------"
+            id="{{ field.formControlKey }}"
+            (change)="seletedValue($event)"
+          >
+            <option selected>Select {{ field.formControlKey }}</option>
+
+            <ng-container
+              *ngIf="field.lovDataList && field.lovDataList.length > 0"
+            >
+              <ng-container *ngFor="let item of field.lovDataList">
+                <option [value]="item.value">{{ item.name }}
+                  
+                </option>
+              </ng-container>
+            </ng-container>
+          </select>
+        </div>
+
+        <div class="col-md-12 text-center">
+          <button class="btn btn-lg btn-secondary mt-4">Search</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
