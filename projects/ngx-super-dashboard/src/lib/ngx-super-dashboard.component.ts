@@ -17,94 +17,151 @@ import {
 @Component({
   selector: 'lib-ngx-super-dashboard',
   template:`
- <div>
+  <div class="fields-bar">
+  <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit(dynamicForm.value)">
+    <div class="grid-label-bar" *ngIf="dynamicForm.value.length != 0">
+        
+       
+        
+        
+          <ng-container *ngFor="let field of dynamicFormFieldData;let i = index;">
+          
 
-        <div *ngIf="dynamicForm.value.length != 0">
-    <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit(dynamicForm.value)">
-      <div class="row">
-        <div class="form-group col-md-3" *ngFor="let field of dynamicFormFieldData; let i = index;">
-          <select
-            class="form-control m-1"
-            formControlName="{{ field.formControlKey }} -------"
-            id="{{ field.formControlKey }}"
-            (change)="seletedValue($event)"
-          >
-            <option selected>Select {{field.formControlKey}}</option>
-            
-                <ng-container *ngIf="field.lovDataList && field.lovDataList.length > 0">
-                 
-                <ng-container *ngFor="let item of field.lovDataList">
-                            <option [value]="item.value" >{{ item.name }}</option>
-                </ng-container>
-        </ng-container>
-        
-          </select>
-        </div>
-        
-        <div class="col-md-12 text-center">
-    <button class="btn btn-lg btn-secondary mt-4">Search</button>
-  </div>
+      <div class="list" *ngIf="field.lovDataList && field.lovDataList.length > 0; else dynamicNonDropdown">
+        <div class="lable">{{ field.lable }}<span>-</span></div>
+
+        <select
+          formControlName="{{ field.formControlKey }}"
+          id="{{ field.formControlKey }}"
+          (change)="seletedValue($event)"
+          placeholder="Select"
+        >
+          <option selected value="">Select</option>
+          <option [value]="item.value" *ngFor="let item of field.lovDataList;">{{ item.name }}</option>
+          
+        </select>
+       
       </div>
-    </form>
+      
+      
+    <ng-template #dynamicNonDropdown>
+      <div class="list">
+        <div class="lable">{{ field.lable }}<span>-</span></div>
+        <input
+          type="{{ field.type }}"
+          class="picker"
+          formControlName="{{ field.formControlKey }}"
+          id="{{ field.formControlKey }}"
+          (change)="seletedValue($event)"
+          placeholder="Select"
+        />
+      </div>
+    </ng-template>
+     
+    </ng-container>
+
+      <div class="list lastList">
+        <div class="lable">
+          *Accounts in Actuals <br />
+          *Ammount in Lakhs
+        </div>
+      </div>
+    </div>
+  </form>
 </div>
-  </div>
+
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles:[`
+
+  .fields-bar {
+    width:100vw;
+    position:fixed;
+    top:0;
+    z-index:999;
+    background-color: #111249;
+    display: flex;
+  }
+  .grid-label-bar {
+    grid-template-columns: auto auto auto auto auto auto auto;
+    gap: 10px;
+    padding: 5px 14px;
+    display: grid;
+    color: #fff;
+    font-size: 13px;
+   
+  }
+
+  .grid-label-bar .list {
+    display: flex;
+    align-items: center;
+  }
+
+  .lable span {
+      margin-left: 6px;
+   }
   
   
-.card{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  min-width: 200px;
-  border: 1px solid #d7d2d2;
-  height: 200px;
-  box-shadow: 0 2px 6px 0 #20212447;
-}
-
-
-.dashboard-container{
-  display: grid;
-  grid-template-columns: repeat(5,1fr);
-  height: 100%;
-  margin: 1rem;
-  gap: 0.5rem;
-}
-
-.grid-area-search{
-  grid-column: 1/-1;
-  text-align: center;
-  align-items: center;
-  border: 1px solid #20212447 ;
-}
-
-.grid-area-chartsm{
-  grid-column: 4/-1;
-  grid-row: 2/4;
-  color:black;
-  text-align: center;
-  min-height: 40%;
   
-}
-
-
-.grid-area-chartlg{
-
-  grid-column: 3/4;
-  border: 1px solid #20212447 ;
-}
-
-.grid-area-card{
-
-  grid-column: 1/3;
-  grid-row-start:2;
-  margin: 0 auto;
-}
-
-
+  input.picker[type="date"] {
+    position: relative;
+  }
+  
+  input.picker[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    color: transparent;
+    background: transparent;
+  }
+  
+  select,
+  input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: none;
+    border: none;
+    color: #fff;
+    width: 118px;
+    padding: 0 6px;
+  }
+  select::-ms-expand {
+    display: none; /* Hide the default arrow in Internet Explorer 10 and Internet Explorer 11 */
+  }
+  select:focus-visible {
+    outline: none;
+  }
+  
+  input::placeholder {
+    color: #fff;
+    opacity: 1; /* Firefox */
+  }
+  option {
+    background-color: #fff;
+    color: #000;
+  }
+  
+  @media (max-width: 1089px) {
+    .grid-label-bar .lastList {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 786px) {
+    .grid-label-bar {
+      grid-template-columns: auto auto auto;
+    }
+  }
+  @media (max-width: 580px) {
+    .grid-label-bar {
+      grid-template-columns: auto auto;
+    }
+  }
+  
   `]
 })
 export class NgxSuperDashboardComponent {
@@ -153,34 +210,43 @@ export class NgxSuperDashboardComponent {
   }
 
 }
+export const DynamicFieldsConfiguration  = (fieldConfig:DynamicFieldsData[]):DynamicFieldsData[] => {
+  if(fieldConfig)
+    return fieldConfig
+  else 
+    return testFieldData
+}
 
-export const DynamicFieldsConfiguration: DynamicFieldsData[] = [
-  { lable: "Zone", formControlKey: "zone", lovDataList: [] },
-  { lable: "Branch", formControlKey: "branch", lovDataList: [] },
-  { lable: "Teams", formControlKey: "teams", lovDataList: [] },
-  { lable: "Team Members", formControlKey: "teamMembers", lovDataList: [] },
- 
+
+export const testFieldData:DynamicFieldsData[] = [
+{ lable: "Zone", formControlKey: "zone", lovDataList: [] },
+{ lable: "Branch", formControlKey: "branch", lovDataList: [] },
+{ lable: "Teams", formControlKey: "teams", lovDataList: [] },
+{ lable: "Product", formControlKey: "product", lovDataList: [] },
+{ lable: "Start Date", formControlKey: "startDate", type: "date" },
+{ lable: "End Date", formControlKey: "endDate", type: "date" },
 ];
 
 export interface AppLOVData {
-  name: string | number;
-  value: string | number;
+name: string | number;
+value: string | number;
 }
 
 export interface DynamicFieldsData {
-  lable: string;
-  formControlKey: string;
-  lovDataList: AppLOVData[];
+lable: string;
+formControlKey: string;
+lovDataList?: AppLOVData[];
+type?: string;
 }
 
 export interface SelectedFieldValueEmit {
-  selectedValue: string | number;
-  fieldControlName: string;
+selectedValue: string | number;
+fieldControlName: string;
 }
 
 export interface SetDataOption {
-  fetchLovData: Record<string, string | number | any | null>[];
-  optCode?: string | number;
-  optDesc?: string;
-  optDesc2?: string;
+fetchLovData: Record<string, string | number | any | null>[];
+value?: string | number;
+name?: string;
+optDesc2?: string;
 }

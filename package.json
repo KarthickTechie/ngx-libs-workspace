@@ -1,6 +1,6 @@
 {
   "name": "ngx-libs-workspace",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,7 +8,10 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
-  "private": true,
+  "private": false,
+  "repository": {
+    "url": "https://github.com/KarthickTechie/ngx-libs-workspace.git"
+  },
   "dependencies": {
     "@angular/animations": "^16.1.0",
     "@angular/common": "^16.1.0",

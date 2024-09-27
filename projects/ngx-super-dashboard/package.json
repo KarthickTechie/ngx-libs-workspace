@@ -1,6 +1,9 @@
 {
   "name": "ngx-super-dashboard",
-  "version": "0.0.1",
+  "version": "0.0.4",
+  "repository": {
+    "url": "https://github.com/KarthickTechie/ngx-libs-workspace.git"
+  },
   "peerDependencies": {
     "@angular/common": "^16.1.0",
     "@angular/core": "^16.1.0",
