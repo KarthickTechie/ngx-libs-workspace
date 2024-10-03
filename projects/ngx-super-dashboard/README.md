@@ -6,21 +6,55 @@ This library was generated with [Angular CLI](https://github.com/angular/angular
 
 ## component.html
 
+lib-ngx-super-dashboard is a combination of search form fields and angular-google-charts module 
+
+various filters like dropdown filters , date picker can be configured with dynamicFormFieldData input prop
+
+onSelect and onSbmit eventemitters are provided to return the selected value of dropdown and form object 
+
+eg : when zone dropdown selected onSelect event emitter will return  object of type SelectedFieldValueEmit
+
+onSelect(a:SelectedFieldValueEmit){
+
+
+}
+
+onSubmit(e:Record<string, string | number){
+
+
+}
+
+Usage of the component . 
+
 <lib-ngx-super-dashboard
+
 [dynamicFormFieldData]="searchFormFields"
+
 (onSelect)="onSelected($event)"
+
 (onSubmit)="onSearchSubmit($event)"
+
 [cardConfig]="testCardData"
+
 [chartsConfig]="testChartsData"
+
 (onSelectChart)="selectedChart($event)"
+
 [gridOneConfig]="testCardTable"
+
 [gridTwoConfig]="testGridTable"
 
 >
 
 </lib-ngx-super-dashboard>
 
+
+Input Properties
+
 ## component.ts
+
+Sample data of dynamicFormFieldData to configure dynamic search form
+
 
 searchFormFields : DynamicFieldsData[] = [
 { lable: "Zone", formControlKey: "zone", lovDataList: [{name:'chennai',value:1},{name:'trichy',value:2}] },
@@ -31,14 +65,12 @@ searchFormFields : DynamicFieldsData[] = [
 
 ];
 
-example:This is for left side grid cards section
 
-export const DynamicCardsConfiguration = (
-cardConfig: DynamicCardsData[]
-): DynamicCardsData[] => {
-if (cardConfig) return cardConfig;
-else return testCardData;
-};
+## 2. Cards Configuration 
+
+Cards are configured using cardConfig input property . cardConfig takes array of DynamicCardData type
+
+sample data
 
 export const testCardData: DynamicCardsData[] = [
 { title: 'Total Proposals', value: 700 },
@@ -49,19 +81,18 @@ export const testCardData: DynamicCardsData[] = [
 { title: 'Disbursed', value: 120 },
 ];
 
-export const dashboardChartsConfig = (
-chartsData?: DashardCardConfig[]
-): DashardCardConfig[] => {
-if (chartsData) {
-return chartsData;
-} else {
-return testChartsData;
-}
-};
+
+
+## 3. Dashboard Configuration 
+
+Charts  are configured using chartsConfig input property . chartsConfig takes array of DashardCardConfig type
+
+Sample chartConfig Data below 
+
 
 export const testChartsData: DashardCardConfig[] = [
 {
-type: ChartType.ComboChart,
+type: ChartType.ComboChart, 
 cardTitle: 'Monthly Wise',
 chartOptionData: {
 myColumns: ['Year', 'Retail', 'Agri', 'MSME', 'Gold', 'Corp'],
@@ -121,112 +152,103 @@ className: '',
 },
 ];
 
+
+
+## 4. Grids Configuration 
+
+design dynamic grid component using gridOneConfig and gridTwoConfig input properties 
+
+
 gridOneConfig: it is a input for small card table array data
 
 example:
 
-export const CardTableDataConfig = (
-cardTableData?: CardTableDataConfig
-): CardTableDataConfig => {
-if (cardTableData) {
-return cardTableData;
-} else {
-return testCardTable;
-}
-};
 
 export const testCardTable = {
-cardTitle: 'Top 5 Branches',
-tableColumnHeadings: ['', 'Retail', 'Agri', 'MSME', 'Gold'],
-tableDataKey: ['orgName', 'retail', 'agri', 'msme', 'gold'],
-tableData: [
-{
-orgName: 'Chennai',
-retail: '849',
-agri: '599',
-msme: '500',
-gold: '200',
-},
-{
-orgName: 'Delhi',
-retail: '200',
-agri: '300',
-msme: '400',
-gold: '150',
-},
-{
-orgName: 'Tnagar',
-retail: '849',
-agri: '480',
-msme: '250',
-gold: '600',
-},
-{
-orgName: 'Poonamale',
-retail: '940',
-agri: '234',
-msme: '700',
-gold: '400',
-},
-],
-};
+    cardTitle: 'Top 5 Branches',
+    tableColumnHeadings: ['', 'Retail', 'Agri', 'MSME', 'Gold'],
+    tableDataKey: ['orgName', 'retail', 'agri', 'msme', 'gold'],
+    tableData: [
+            {
+              orgName: 'Chennai',
+              retail: '849',
+              agri: '599',
+              msme: '500',
+              gold: '200',
+            },
+            {
+              orgName: 'Delhi',
+              retail: '200',
+              agri: '300',
+              msme: '400',
+              gold: '150',
+            },
+            {
+              orgName: 'Tnagar',
+              retail: '849',
+              agri: '480',
+              msme: '250',
+              gold: '600',
+            },
+            {
+              orgName: 'Poonamale',
+              retail: '940',
+              agri: '234',
+              msme: '700',
+              gold: '400',
+            },
+          ],
+        };
 
-gridTwoConfig: it is a input for small card table array data
+
+
+gridTwoConfig: it is a input for large card table array data
 
 example:
 
-export const gridTableDataConfig = (
-gridTableData?: GridTableConfigData
-): GridTableConfigData => {
-if (gridTableData) {
-return gridTableData;
-} else {
-return testGridTable;
-}
-};
 
 export const testGridTable: GridTableConfigData = {
-title: 'Scheme Wise',
-tableHeading: [
-'Loan Type',
-'Scheme',
-'No of Acc #',
-'Limit in (Lakhs)',
-'OS amt in(Lakhs)',
+  title: 'Scheme Wise',
+  tableHeading: [
+      'Loan Type',
+      'Scheme',
+      'No of Acc #',
+      'Limit in (Lakhs)',
+      'OS amt in(Lakhs)',
 ],
-tableData: [
-{
-parentName: 'Chennai',
-childData: [
-{
-tpmSeqId: 62685,
-tpmCode: '2',
-tpmModifiedDate: '2024-04-24T07:49:20.879+0000',
-tpmPrdCode: 'Car Loan',
-schemeType: 'Car Dealer',
-noOfAcc: 'S14',
-limit: '344',
-Sanctioned: '20302',
-},
-],
-},
-{
-parentName: 'Hyderabad',
-childData: [
-{
-tpmSeqId: 62686,
-tpmCode: '2',
-tpmModifiedDate: '2024-04-24T07:49:20.880+0000',
-tpmPrdCode: 'Cash Loan',
-schemeType: 'Property Loan',
-noOfAcc: 'S34',
-limit: '676',
-Sanctioned: '23',
-},
-],
-},
-],
-tableDataKey: ['schemeType', 'noOfAcc', 'limit', 'Sanctioned'],
+  tableData: [
+      {
+        parentName: 'Chennai',
+        childData: [
+            {
+              tpmSeqId: 62685,
+              tpmCode: '2',
+              tpmModifiedDate: '2024-04-24T07:49:20.879+0000',
+              tpmPrdCode: 'Car Loan',
+              schemeType: 'Car Dealer',
+              noOfAcc: 'S14',
+              limit: '344',
+              Sanctioned: '20302',
+            },
+          ],
+        },
+    {
+      parentName: 'Hyderabad',
+      childData: [
+          {
+              tpmSeqId: 62686,
+              tpmCode: '2',
+              tpmModifiedDate: '2024-04-24T07:49:20.880+0000',
+              tpmPrdCode: 'Cash Loan',
+              schemeType: 'Property Loan',
+              noOfAcc: 'S34',
+              limit: '676',
+              Sanctioned: '23',
+          },
+      ],
+    },
+  ],
+    tableDataKey: ['schemeType', 'noOfAcc', 'limit', 'Sanctioned'],
 };
 
 ## Event Emitters
@@ -238,55 +260,53 @@ onSelectChart -- Click on chart, it emit events and chartType
 ## type definition
 
 export interface AppLOVData {
-name: string | number;
-value: string | number;
+        name: string | number;
+        value: string | number;
 }
 
 export interface DynamicFieldsData {
-lable: string;
-formControlKey: string;
-lovDataList?: AppLOVData[];
-type?: string;
-className?: string;
+        lable: string;
+        formControlKey: string;
+        lovDataList?: AppLOVData[];
+        type?: string;
+        className?: string;   
 }
 
 export interface SelectedFieldValueEmit {
-selectedValue: string | number;
-fieldControlName: string;
+        selectedValue: string | number;
+        fieldControlName: string;
 }
 
 export interface SetDataOption {
-fetchLovData: Record<string, string | number>[];
-value: string | number;
-name: string;
-name2?: string;
+        fetchLovData: Record<string, string | number>[];
+        value: string | number;
+        name: string;
+        name2?: string;
 }
 
 // interfaces for grid cardsList:
 
 export interface DynamicCardsData {
-title: string;
-value: number | string;
-className?: string;
+        title: string;
+        value: number | string;
+        className?: string;
 }
 
 export interface DashardCardConfig {
-type: any;
-chartOptionData: ChartOptionsConfig;
-chartData: Array<ChartDataType[]>;
-cardTitle?: string;
-className?: string;
+        type: any;
+        chartOptionData: ChartOptionsConfig;
+        chartData: Array<ChartDataType[]>;
+        cardTitle?: string;
+        className?: string;
 }
 
 export type ChartDataType = string | number;
 
 export interface ChartOptionsConfig {
-myColumns: Array<
-string | ColumnsType[] | string | Record<string, string | number>
+myColumns: Array<string | ColumnsType[] | string | Record<string, string | number>>> 
+chartOptions: ChartAxisData;> 
 
-> ;
-> chartOptions: ChartAxisData;
-> }
+}
 
 export type ColumnsType = string | number;
 
