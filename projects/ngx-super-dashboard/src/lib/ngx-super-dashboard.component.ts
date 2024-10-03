@@ -22,10 +22,7 @@ declare const google: any;
   selector: 'lib-ngx-super-dashboard',
   template: `
     <div class="fields-bar">
-      <form
-        [formGroup]="dynamicForm"
-        (ngSubmit)="onSubmitForm(dynamicForm.value)"
-      >
+      <form [formGroup]="dynamicForm" (ngSubmit)="onSubmitForm()">
         <div class="grid-label-bar" *ngIf="dynamicForm.value.length != 0">
           <ng-container
             *ngFor="let field of dynamicFormFieldData; let i = index"
@@ -204,38 +201,28 @@ declare const google: any;
                 </th>
               </thead>
               <ng-container
-                *ngIf="typeCheck(gridTwoConfig.tableData); else arrayBody"
+                *ngIf="
+                  gridTwoConfig.tableData && gridTwoConfig.tableData.length > 0
+                "
               >
                 <tbody>
-                  <ng-container
-                    *ngFor="let loan of gridTwoConfig.tableData | keyvalue"
-                  >
-                    <tr>
-                      <td>
-                        {{ loan.key }}
-                      </td>
-                      <td colspan="5" class="colspan">
-                        <tr *ngFor="let item of $any(loan).value">
-                          <td *ngFor="let key of gridTwoConfig.tableDataKey">
-                            {{ item[key] }}
-                          </td>
-                        </tr>
-                      </td>
-                    </tr>
-                  </ng-container>
+                  <tr *ngFor="let parent of gridTwoConfig.tableData">
+                    <td>
+                      {{ parent.parentName }}
+                    </td>
+                    <td
+                      [attr.colspan]="gridTwoConfig.tableDataKey.length"
+                      class="colspan"
+                    >
+                      <tr *ngFor="let item of parent.childData">
+                        <td *ngFor="let key of gridTwoConfig.tableDataKey">
+                          {{ item[key] }}
+                        </td>
+                      </tr>
+                    </td>
+                  </tr>
                 </tbody>
               </ng-container>
-              <ng-template #arrayBody>
-                <tbody>
-                  <ng-container *ngFor="let loan of gridTwoConfig.tableData">
-                    <tr>
-                      <td *ngFor="let item of gridTwoConfig.tableDataKey">
-                        {{ loan[item] }}
-                      </td>
-                    </tr>
-                  </ng-container>
-                </tbody>
-              </ng-template>
             </table>
           </div>
         </div>
@@ -245,10 +232,6 @@ declare const google: any;
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
-      :root {
-        --purple-color: #622248;
-        --card-border-width: 8px;
-      }
       .fields-bar {
         width: 100vw;
         position: fixed;
@@ -316,7 +299,10 @@ declare const google: any;
         background-color: #fff;
         color: #000;
       }
-
+      .grid-container {
+        --purple-color: #622248;
+        --card-border-width: 8px;
+      }
       .grid-container {
         height: auto !important;
         display: grid;
@@ -377,7 +363,7 @@ declare const google: any;
 
       .grid-area-tableRecords .card {
         overflow: auto;
-        width: 100%;
+        width: 38vw;
         height: 100%;
       }
       .grid-area-tableRecords .card-content {
@@ -464,12 +450,12 @@ declare const google: any;
       }
       .card-border-left {
         border-left-color: var(--purple-color);
-        border-left-width: var(--card-border-width);
+        border-left-width: var(--card-border-width) !important;
         border-left-style: solid;
       }
       .card-border-bottom {
         border-bottom-color: var(--purple-color);
-        border-bottom-width: var(--card-border-width);
+        border-bottom-width: var(--card-border-width) !important;
         border-bottom-style: solid;
       }
       .grid-area-expand {
@@ -477,6 +463,7 @@ declare const google: any;
       }
       .grid-area-expand .card {
         width: 100%;
+        height: 54vh;
       }
     `,
   ],
@@ -493,7 +480,7 @@ export class NgxSuperDashboardComponent implements OnInit {
   @Input() gridTwoConfig!: GridTableConfigData;
 
   @Output() onSelect = new EventEmitter<SelectedFieldValueEmit>();
-  @Output() onSubmit = new EventEmitter();
+  @Output() onSubmit = new EventEmitter<Record<string, string | number>>();
 
   @Output() onSelectChart = new EventEmitter<ChartEventEmitOnSelect>();
 
@@ -510,9 +497,7 @@ export class NgxSuperDashboardComponent implements OnInit {
 
   typeCheck(data: any) {
     console.log(typeof data, 'slffksd');
-    return data !== undefined && data != null && typeof data === 'object'
-      ? true
-      : false;
+    return data && Array.isArray(data) ? false : true;
   }
 
   createForm() {
@@ -534,11 +519,11 @@ export class NgxSuperDashboardComponent implements OnInit {
     });
   }
 
-  onSubmitForm(formValues: FormGroup) {
-    this.onSubmit.emit(formValues);
+  onSubmitForm() {
+    this.onSubmit.emit(this.dynamicForm.value);
   }
 
-  selectedChart(ev: ChartSelectionChangedEvent, chartType: ChartType) {
+  selectedChart(ev: ChartSelectionChangedEvent, chartType: string) {
     this.onSelectChart.emit({
       ev: ev,
       chartType: chartType,
@@ -581,7 +566,7 @@ export interface SelectedFieldValueEmit {
 }
 
 export interface SetDataOption {
-  fetchLovData: Record<string, string | number | any | null>[];
+  fetchLovData: Record<string, string | number>[];
   value: string | number;
   name: string;
   name2?: string;
@@ -606,7 +591,7 @@ export const testCardData: DynamicCardsData[] = [
 
 export interface DynamicCardsData {
   title: string;
-  value: number | string | null;
+  value: number | string;
   className?: string;
 }
 
@@ -682,26 +667,33 @@ export const testChartsData: DashardCardConfig[] = [
 ];
 
 export interface DashardCardConfig {
-  type: any | string;
+  type: any;
   chartOptionData: ChartOptionsConfig;
-  chartData: any[];
+  chartData: Array<ChartDataType[]>;
   cardTitle?: string;
   className?: string;
 }
 
+export type ChartDataType = string | number;
+
 export interface ChartOptionsConfig {
-  myColumns: any[];
+  // myColumns: Array<
+  //   string | ColumnsType[] | string | Record<string, string | number>
+  // >;
+  myColumns: any;
   chartOptions: ChartAxisData;
 }
+
+export type ColumnsType = string | number;
 
 export interface ChartAxisData {
   title: string;
   chartArea: { width?: string | number; height?: string | number };
-  slices?: object | null;
+  slices?: object;
   hAxis?: AxisVlaues;
   vAxis?: AxisVlaues;
   seriesType?: string;
-  series?: object | null;
+  series?: object;
 }
 
 export interface AxisVlaues {
@@ -710,7 +702,7 @@ export interface AxisVlaues {
 }
 
 export interface ChartEventEmitOnSelect {
-  ev: any;
+  ev: ChartSelectionChangedEvent;
   chartType: string;
 }
 
@@ -764,7 +756,7 @@ export interface CardTableDataConfig {
   cardTitle?: string;
   tableColumnHeadings: string[];
   tableDataKey: string[];
-  tableData: any[];
+  tableData: Array<Record<string, string | number>>;
   className?: string;
 }
 
@@ -772,9 +764,12 @@ export interface GridTableConfigData {
   title?: string;
   tableHeading: string[];
   tableDataKey: string[];
-  tableData: any | object;
+  // tableData: Array<Record<string, string | number | []>>;
+  tableData: any;
   className?: string;
 }
+
+export type ChildDataType = string | number;
 
 export const gridTableDataConfig = (
   gridTableData?: GridTableConfigData
@@ -795,109 +790,47 @@ export const testGridTable: GridTableConfigData = {
     'Limit in (Lakhs)',
     'OS amt in(Lakhs)',
   ],
-  tableData: {
-    'Car Loan': [
-      {
-        tpmSeqId: 62685,
-        tpmCode: '2',
-        tpmModifiedDate: '2024-04-24T07:49:20.879+0000',
-        tpmPrdCode: 'Car Loan',
-        schemeType: 'Car Dealer',
-        noOfAcc: 'S14',
-        limit: '344',
-        Sanctioned: '20302',
-      },
-      {
-        tpmSeqId: 62698,
-        tpmCode: '2',
-        tpmModifiedDate: '2024-04-24T07:49:20.889+0000',
-        tpmPrdCode: 'Car Loan',
-        schemeType: 'Luxury Car Loan',
-        noOfAcc: '84',
-        limit: '21232',
-        Sanctioned: '121.45',
-      },
-    ],
-    'Cash Loan': [
-      {
-        tpmSeqId: 62686,
-        tpmCode: '2',
-        tpmModifiedDate: '2024-04-24T07:49:20.880+0000',
-        tpmPrdCode: 'Cash Loan',
-        schemeType: 'Property Loan',
-        noOfAcc: 'S34',
-        limit: '676',
-        Sanctioned: '23',
-      },
-    ],
-    'Corporate Home Loan': [
-      {
-        tpmSeqId: 55190,
-        tpmCode: '1',
-        tpmModifiedDate: '2024-03-28T04:41:16.542+0000',
-        tpmPrdCode: 'Corporate Home Loan',
-        schemeType: 'Topup Housing Loan',
-        noOfAcc: 'S74',
-        limit: '674',
-        Sanctioned: '6787',
-      },
-    ],
-    'Housing Loan': [
-      {
-        tpmSeqId: 55191,
-        tpmCode: '1',
-        tpmModifiedDate: '2024-03-28T04:41:16.542+0000',
-        tpmPrdCode: 'Housing Loan',
-        schemeType: 'Topup Housing Loan',
-        noOfAcc: '456',
-        limit: '7876',
-        Sanctioned: '89',
-      },
-      {
-        tpmSeqId: 62691,
-        tpmCode: '2',
-        tpmModifiedDate: '2024-04-24T07:49:20.884+0000',
-        tpmPrdCode: 'Housing Loan',
-        schemeType: 'Staff Housing Loan',
-        noOfAcc: '75',
-        limit: '435.65',
-        Sanctioned: '784.32',
-      },
-      {
-        tpmSeqId: 55198,
-        tpmCode: '1',
-        tpmModifiedDate: '2024-03-28T04:41:16.542+0000',
-        tpmPrdCode: 'Housing Loan',
-        schemeType: 'Housing Place Loan',
-        noOfAcc: '68',
-        limit: '232',
-        Sanctioned: '459',
-      },
-    ],
-    'Pensioner Loan': [
-      {
-        tpmSeqId: 62699,
-        tpmCode: '2',
-        tpmModifiedDate: '2024-04-24T07:49:20.889+0000',
-        tpmPrdCode: 'Pensioner Loan',
-        schemeType: 'Car Dealer',
-        noOfAcc: '84',
-        limit: '21232',
-        Sanctioned: '121.45',
-      },
-    ],
-    'Working Capital UCO Bank': [
-      {
-        tpmSeqId: 22735,
-        tpmCode: '5',
-        tpmModifiedDate: '2023-08-03T12:29:43.790+0000',
-        tpmPrdCode: 'Working Capital UCO Bank',
-        schemeType: 'Corporate Home Loan',
-        noOfAcc: '342',
-        limit: '2345',
-        Sanctioned: '676',
-      },
-    ],
-  },
+  tableData: [
+    {
+      parentName: 'Chennai',
+      childData: [
+        {
+          tpmSeqId: 62685,
+          tpmCode: '2',
+          tpmModifiedDate: '2024-04-24T07:49:20.879+0000',
+          tpmPrdCode: 'Car Loan',
+          schemeType: 'Car Dealer',
+          noOfAcc: 'S14',
+          limit: '344',
+          Sanctioned: '20302',
+        },
+        {
+          tpmSeqId: 62698,
+          tpmCode: '2',
+          tpmModifiedDate: '2024-04-24T07:49:20.889+0000',
+          tpmPrdCode: 'Car Loan',
+          schemeType: 'Luxury Car Loan',
+          noOfAcc: '84',
+          limit: '21232',
+          Sanctioned: '121.45',
+        },
+      ],
+    },
+    {
+      parentName: 'Hyderabad',
+      childData: [
+        {
+          tpmSeqId: 62686,
+          tpmCode: '2',
+          tpmModifiedDate: '2024-04-24T07:49:20.880+0000',
+          tpmPrdCode: 'Cash Loan',
+          schemeType: 'Property Loan',
+          noOfAcc: 'S34',
+          limit: '676',
+          Sanctioned: '23',
+        },
+      ],
+    },
+  ],
   tableDataKey: ['schemeType', 'noOfAcc', 'limit', 'Sanctioned'],
 };
