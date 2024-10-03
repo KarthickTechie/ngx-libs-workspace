@@ -25,7 +25,7 @@ onSubmit(e:Record<string, string | number){
 }
 
 Usage of the component . 
-
+```
 <lib-ngx-super-dashboard
 
 [dynamicFormFieldData]="searchFormFields"
@@ -47,7 +47,7 @@ Usage of the component .
 >
 
 </lib-ngx-super-dashboard>
-
+```
 
 Input Properties
 
@@ -56,32 +56,78 @@ Input Properties
 Sample data of dynamicFormFieldData to configure dynamic search form
 
 
-searchFormFields : DynamicFieldsData[] = [
-{ lable: "Zone", formControlKey: "zone", lovDataList: [{name:'chennai',value:1},{name:'trichy',value:2}] },
-{ lable: "Branch", formControlKey: "branch", lovDataList: [] },
-{ lable: "Teams", formControlKey: "teams", lovDataList: [] },
-{ lable: "Team Members", formControlKey: "teamMembers", lovDataList: [] },
-{ lable: "Start Date", formControlKey: "startdate", type: "date", className:'fieldstyle' },
-
+```
+searchFormFields: DynamicFieldsData[] = [
+  {
+    label: "Zone",
+    formControlKey: "zone",
+    lovDataList: [
+      { name: 'Chennai', value: 1 },
+      { name: 'Trichy', value: 2 }
+    ]
+  },
+  {
+    label: "Branch",
+    formControlKey: "branch",
+    lovDataList: []
+  },
+  {
+    label: "Teams",
+    formControlKey: "teams",
+    lovDataList: []
+  },
+  {
+    label: "Team Members",
+    formControlKey: "teamMembers",
+    lovDataList: []
+  },
+  {
+    label: "Start Date",
+    formControlKey: "startdate",
+    type: "date",
+    className: 'fieldstyle'
+  }
 ];
-
-
+```
 ## 2. Cards Configuration 
 
 Cards are configured using cardConfig input property . cardConfig takes array of DynamicCardData type
 
 sample data
-
-export const testCardData: DynamicCardsData[] = [
-{ title: 'Total Proposals', value: 700 },
-{ title: 'On Process', value: 230 },
-{ title: 'Sanctioned', value: 300 },
-{ title: 'Rejected', value: 254 },
-{ title: 'Opened prending for > 30 days', value: 143 },
-{ title: 'Disbursed', value: 120 },
+```
+searchFormFields: DynamicFieldsData[] = [
+  {
+    label:       "Zone",
+    formControlKey: "zone",
+    lovDataList: [
+      { name: 'Chennai', value: 1 },
+      { name: 'Trichy', value: 2 }
+    ]
+  },
+  {
+    label:       "Branch",
+    formControlKey: "branch",
+    lovDataList: []
+  },
+  {
+    label:       "Teams",
+    formControlKey: "teams",
+    lovDataList: []
+  },
+  {
+    label:       "Team Members",
+    formControlKey: "teamMembers",
+    lovDataList: []
+  },
+  {
+    label:       "Start Date",
+    formControlKey: "startdate",
+    type:        "date",
+    className:   'fieldstyle'
+  }
 ];
 
-
+```
 
 ## 3. Dashboard Configuration 
 
@@ -89,70 +135,77 @@ Charts  are configured using chartsConfig input property . chartsConfig takes ar
 
 Sample chartConfig Data below 
 
-
-export const testChartsData: DashardCardConfig[] = [
-{
-type: ChartType.ComboChart, 
-cardTitle: 'Monthly Wise',
-chartOptionData: {
-myColumns: ['Year', 'Retail', 'Agri', 'MSME', 'Gold', 'Corp'],
-
+```
+export const testChartsData: DashboardCardConfig[] = [
+  {
+    type: ChartType.ComboChart,
+    cardTitle: 'Monthly Wise',
+    chartOptionData: {
+      myColumns: [
+        'Year',
+        'Retail',
+        'Agri',
+        'MSME',
+        'Gold',
+        'Corp'
+      ],
       chartOptions: {
         title: `Monthly Wise`,
         chartArea: { width: '50%' },
         hAxis: {
           title: `Modules`,
-          minValue: 0,
+          minValue: 0
         },
         vAxis: {
-          title: 'No. Of Amount',
+          title: 'No. Of Amount'
         },
-        seriesType: 'bars',
-        // series: { 4: { type: "line" } },
-      },
+        seriesType: 'bars'
+        // series: { 4: { type: "line" } }
+      }
     },
     chartData: [
       ['2023/05', 50, 33, 24.5, 33, 22],
       ['2024/05', 23, 41, 22.5, 22, 2],
       ['2021/05', 44, 82, 13, 43, 12],
       ['2023/05', 19, 33, 23, 21, 89],
-      ['2022/05', 30, 20, 12, 34, 22],
+      ['2022/05', 30, 20, 12, 34, 22]
     ],
-    className: '',
-
-},
-{
-type: ChartType.PieChart,
-cardTitle: 'Total Sanctioned',
-chartOptionData: {
-myColumns: [
-['Retail', 'Agri', 'MSME', 'GOLD', 'CORP'],
-'Leads Count',
-{ role: 'style' },
-],
-chartOptions: {
-title: `Sanctioned Amount`,
-chartArea: { width: '50%' },
-slices: {
-0: { color: '#622248' },
-1: { color: '#109618' },
-2: { color: '#3366cc' },
-3: { color: 'red' },
-4: { color: '#ff9900' },
-},
-},
-},
-chartData: [
-['Retail', 3445, 'red'],
-['Agri', 3445, 'red'],
-['MSME', 3445, 'red'],
-['Gold', 3445, 'red'],
-],
-className: '',
-},
+    className: ''
+  },
+  {
+    type: ChartType.PieChart,
+    cardTitle: 'Total Sanctioned',
+    chartOptionData: {
+      myColumns: [
+        ['Retail', 'Agri', 'MSME', 'GOLD', 'CORP'],
+        'Leads Count',
+        { role: 'style' }
+      ],
+      chartOptions: {
+        title: `Sanctioned Amount`,
+        chartArea: { width: '50%' },
+        slices: {
+          0: { color: '#622248' },
+          1: { color: '#109618' },
+          2: { color: '#3366cc' },
+          3: { color: 'red' },
+          4: { color: '#ff9900' }
+        }
+      }
+    },
+    chartData: [
+      ['Retail', 3445, 'red'],
+      ['Agri', 3445, 'red'],
+      ['MSME', 3445, 'red'],
+      ['Gold', 3445, 'red']
+    ],
+    className: ''
+  }
 ];
 
 
+
+```
 
 ## 4. Grids Configuration 
 
@@ -163,7 +216,7 @@ gridOneConfig: it is a input for small card table array data
 
 example:
 
-
+```
 export const testCardTable = {
     cardTitle: 'Top 5 Branches',
     tableColumnHeadings: ['', 'Retail', 'Agri', 'MSME', 'Gold'],
@@ -200,13 +253,13 @@ export const testCardTable = {
           ],
         };
 
-
+```
 
 gridTwoConfig: it is a input for large card table array data
 
 example:
 
-
+```
 export const testGridTable: GridTableConfigData = {
   title: 'Scheme Wise',
   tableHeading: [
@@ -250,7 +303,7 @@ export const testGridTable: GridTableConfigData = {
   ],
     tableDataKey: ['schemeType', 'noOfAcc', 'limit', 'Sanctioned'],
 };
-
+```
 ## Event Emitters
 
 onSelect --- Selected Search Field Data emit with field form control name
@@ -258,7 +311,7 @@ onSubmit --- On Submit Form Data
 onSelectChart -- Click on chart, it emit events and chartType
 
 ## type definition
-
+```
 export interface AppLOVData {
         name: string | number;
         value: string | number;
@@ -283,67 +336,82 @@ export interface SetDataOption {
         name: string;
         name2?: string;
 }
-
+```
 // interfaces for grid cardsList:
+```
 
+// Dynamic Card Data Interface
 export interface DynamicCardsData {
-        title: string;
-        value: number | string;
-        className?: string;
+  title: string;
+  value: number | string;
+  className?: string;
 }
 
-export interface DashardCardConfig {
-        type: any;
-        chartOptionData: ChartOptionsConfig;
-        chartData: Array<ChartDataType[]>;
-        cardTitle?: string;
-        className?: string;
+// Dashboard Card Configuration Interface
+export interface DashboardCardConfig {
+  type: any;
+  chartOptionData: ChartOptionsConfig;
+  chartData: Array<ChartDataType[]>;
+  cardTitle?: string;
+  className?: string;
 }
 
+// Chart Data Type
 export type ChartDataType = string | number;
 
+// Chart Options Configuration Interface
 export interface ChartOptionsConfig {
-myColumns: Array<string | ColumnsType[] | string | Record<string, string | number>>> 
-chartOptions: ChartAxisData;> 
-
+  myColumns: Array<string | ColumnsType[] | string | Record<string, string | number>>;
+  chartOptions: ChartAxisData;
 }
 
+// Columns Data Type
 export type ColumnsType = string | number;
 
+// Chart Axis Data Interface
 export interface ChartAxisData {
-title: string;
-chartArea: { width?: string | number; height?: string | number };
-slices?: object;
-hAxis?: AxisVlaues;
-vAxis?: AxisVlaues;
-seriesType?: string;
-series?: object;
+  title: string;
+  chartArea: {
+    width?: string | number;
+    height?: string | number;
+  };
+  slices?: object;
+  hAxis?: AxisValues;
+  vAxis?: AxisValues;
+  seriesType?: string;
+  series?: object;
 }
 
-export interface AxisVlaues {
-title?: string;
-minValue?: number;
+// Axis Values Interface
+export interface AxisValues {
+  title?: string;
+  minValue?: number;
 }
 
+// Chart Event Emit On Select Interface
 export interface ChartEventEmitOnSelect {
-ev: ChartSelectionChangedEvent;
-chartType: string;
+  ev: ChartSelectionChangedEvent;
+  chartType: string;
 }
 
+// Card Table Data Configuration Interface
 export interface CardTableDataConfig {
-cardTitle?: string;
-tableColumnHeadings: string[];
-tableDataKey: string[];
-tableData: Array<Record<string, string | number>>;
-className?: string;
+  cardTitle?: string;
+  tableColumnHeadings: string[];
+  tableDataKey: string[];
+  tableData: Array<Record<string, string | number>>;
+  className?: string;
 }
 
+// Grid Table Configuration Data Interface
 export interface GridTableConfigData {
-title?: string;
-tableHeading: string[];
-tableDataKey: string[];
-tableData: Array<Record<string, string | number | []>>;
-className?: string;
+  title?: string;
+  tableHeading: string[];
+  tableDataKey: string[];
+  tableData: Array<Record<string, string | number | []>>;
+  className?: string;
 }
 
+// Child Data Type
 export type ChildDataType = string | number;
+```
