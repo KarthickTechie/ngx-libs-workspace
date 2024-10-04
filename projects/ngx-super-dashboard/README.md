@@ -94,39 +94,34 @@ searchFormFields: DynamicFieldsData[] = [
 Cards are configured using cardConfig input property . cardConfig takes array of DynamicCardData type
 
 sample data
-```
-searchFormFields: DynamicFieldsData[] = [
+
+```typescript
+testCardData: DynamicCardsData[] = [
   {
-    label:       "Zone",
-    formControlKey: "zone",
-    lovDataList: [
-      { name: 'Chennai', value: 1 },
-      { name: 'Trichy', value: 2 }
-    ]
+    title: 'Total Proposals',
+    value: 700
   },
   {
-    label:       "Branch",
-    formControlKey: "branch",
-    lovDataList: []
+    title: 'On Process',
+    value: 230
   },
   {
-    label:       "Teams",
-    formControlKey: "teams",
-    lovDataList: []
+    title: 'Sanctioned',
+    value: 300
   },
   {
-    label:       "Team Members",
-    formControlKey: "teamMembers",
-    lovDataList: []
+    title: 'Rejected',
+    value: 254
   },
   {
-    label:       "Start Date",
-    formControlKey: "startdate",
-    type:        "date",
-    className:   'fieldstyle'
+    title: 'Opened Pending for > 30 days',
+    value: 143
+  },
+  {
+    title: 'Disbursed',
+    value: 120
   }
 ];
-
 ```
 
 ## 3. Dashboard Configuration 
