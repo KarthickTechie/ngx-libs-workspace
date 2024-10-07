@@ -353,7 +353,7 @@ declare const google: any;
 
       .grid-area-chart .card {
         width: 40vw;
-        height: 39.5vh;
+        height: 40vh;
         padding-bottom: 8px;
       }
 
@@ -383,25 +383,29 @@ declare const google: any;
       .grid-table tr,
       .grid-table th {
         border-bottom: 1px solid #ddd;
-        padding: 8px;
       }
       .grid-table .colspan tr:last-child {
         border: none;
       }
+      .grid-table td {
+        padding: 5px 0;
+      }
       .colspan td {
-        width: 20%;
-        padding: 8px;
+        border: none !important;
+        width: 7vw !important;
       }
 
       .grid-table td:nth-child(1),
       .grid-table th:nth-child(1) {
         border-right: 1px solid #f2f2f2;
+        width: 10vw;
       }
 
       .grid-table th {
         padding-top: 12px;
         padding-bottom: 12px;
         text-align: center;
+        width: 7vw;
       }
 
       @media (max-width: 850px) {
@@ -490,13 +494,10 @@ export class NgxSuperDashboardComponent implements OnInit {
 
   ngOnInit() {
     //create dynamic fields and add validation for each field
-    console.log(this.gridTwoConfig, 'sdsdsd');
-    console.log(`NgxSuperDashboardComponent : ngOnInit`);
     this.createForm();
   }
 
   typeCheck(data: any) {
-    console.log(typeof data, 'slffksd');
     return data && Array.isArray(data) ? false : true;
   }
 
