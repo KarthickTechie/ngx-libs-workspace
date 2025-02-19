@@ -1,30 +1,29 @@
 # NgxSuperDashboard
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.1.0.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.1.0
 
 ## Sample Program using Ngx-super-dashboard
 
 ## component.html
 
-lib-ngx-super-dashboard is a combination of search form fields and angular-google-charts module 
+lib-ngx-super-dashboard is a combination of search form fields and angular-google-charts module
 
 various filters like dropdown filters , date picker can be configured with dynamicFormFieldData input prop
 
-onSelect and onSbmit eventemitters are provided to return the selected value of dropdown and form object 
+onSelect and onSbmit eventemitters are provided to return the selected value of dropdown and form object
 
-eg : when zone dropdown selected onSelect event emitter will return  object of type SelectedFieldValueEmit
+eg : when zone dropdown selected onSelect event emitter will return object of type SelectedFieldValueEmit
 
 onSelect(a:SelectedFieldValueEmit){
-
 
 }
 
 onSubmit(e:Record<string, string | number){
 
-
 }
 
-Usage of the component . 
+Usage of the component.
+
 ```
 <lib-ngx-super-dashboard
 
@@ -44,17 +43,22 @@ Usage of the component .
 
 [gridTwoConfig]="testGridTable"
 
+[noteText]="searchBarText"
 >
 
 </lib-ngx-super-dashboard>
 ```
 
+## In Angular 8 Project,
+
+In module, define `ScriptLoaderService` provider in providers.
+example: providers: [ScriptLoaderService]
+
 Input Properties
 
 ## component.ts
 
-Sample data of dynamicFormFieldData to configure dynamic search form
-
+## 1. Dynamic FormField Configure
 
 ```
 searchFormFields: DynamicFieldsData[] = [
@@ -89,7 +93,8 @@ searchFormFields: DynamicFieldsData[] = [
   }
 ];
 ```
-## 2. Cards Configuration 
+
+## 2. Cards Configuration
 
 Cards are configured using cardConfig input property . cardConfig takes array of DynamicCardData type
 
@@ -124,11 +129,11 @@ testCardData: DynamicCardsData[] = [
 ];
 ```
 
-## 3. Dashboard Configuration 
+## 3. Dashboard Configuration
 
-Charts  are configured using chartsConfig input property . chartsConfig takes array of DashardCardConfig type
+Charts are configured using chartsConfig input property . chartsConfig takes array of DashardCardConfig type
 
-Sample chartConfig Data below 
+Sample chartConfig Data below
 
 ```
 export const testChartsData: DashboardCardConfig[] = [
@@ -199,13 +204,11 @@ export const testChartsData: DashboardCardConfig[] = [
 ];
 
 
-
 ```
 
-## 4. Grids Configuration 
+## 4. Grids Configuration
 
-design dynamic grid component using gridOneConfig and gridTwoConfig input properties 
-
+design dynamic grid component using gridOneConfig and gridTwoConfig input properties
 
 gridOneConfig: it is a input for small card table array data
 
@@ -299,6 +302,15 @@ export const testGridTable: GridTableConfigData = {
     tableDataKey: ['schemeType', 'noOfAcc', 'limit', 'Sanctioned'],
 };
 ```
+
+## 5. Search bar note Text
+
+it is displaying some hint or note text on search fields bar end
+
+```
+noteText = '*Amount in lakhs'
+```
+
 ## Event Emitters
 
 onSelect --- Selected Search Field Data emit with field form control name
@@ -306,7 +318,9 @@ onSubmit --- On Submit Form Data
 onSelectChart -- Click on chart, it emit events and chartType
 
 ## type definition
+
 ```
+
 export interface AppLOVData {
         name: string | number;
         value: string | number;
@@ -317,7 +331,7 @@ export interface DynamicFieldsData {
         formControlKey: string;
         lovDataList?: AppLOVData[];
         type?: string;
-        className?: string;   
+        className?: string;
 }
 
 export interface SelectedFieldValueEmit {
@@ -332,7 +346,9 @@ export interface SetDataOption {
         name2?: string;
 }
 ```
+
 // interfaces for grid cardsList:
+
 ```
 
 // Dynamic Card Data Interface
@@ -356,7 +372,7 @@ export type ChartDataType = string | number;
 
 // Chart Options Configuration Interface
 export interface ChartOptionsConfig {
-  myColumns: Array<string | ColumnsType[] | string | Record<string, string | number>>;
+  myColumns: any;
   chartOptions: ChartAxisData;
 }
 
@@ -403,10 +419,54 @@ export interface GridTableConfigData {
   title?: string;
   tableHeading: string[];
   tableDataKey: string[];
-  tableData: Array<Record<string, string | number | []>>;
+  tableData: any;
   className?: string;
 }
 
 // Child Data Type
 export type ChildDataType = string | number;
 ```
+
+## Version 0.0.8 Changes
+
+1. Data Bind to form fields in two ways
+
+a. Default bind data on creation of Form Fields by using `selected` property
+
+```
+export interface DynamicFieldsData {
+  lable: string;
+  formControlKey: string;
+  lovDataList?: AppLOVData[];
+  type?: string;
+  className?: string;
+  selected?: string | number;
+}
+```
+
+b. Based on requirment, bind array of data to multiple fileds by using service method is setDataBindToFie(aurg)
+Inject NgxSuperDashboardService service in constructor, then call setDataBindToField()
+
+1. Set initial value to Dropdown / Date fields of form by using getFormGroup setter in service.
+   getFormGroup: is providing form controls to perform opration on form fields directly from your component.
+   Inject NgxSuperDashboardService service in constructor in ts file.
+
+```
+Example:
+constructor(
+private ngxData: NgxSuperDashboardService
+){}
+
+export interface SelectedFieldValueEmit {
+  selectedValue: string | number;
+  fieldControlName: string;
+}
+  this.ngxData.formGroupSetting.get('zone').setValue(1);
+
+```
+
+2. Changed background color of Count Cards
+
+3. Swap the cards and charts position
+
+4. Removed Selected template option and fixed horizontal ui

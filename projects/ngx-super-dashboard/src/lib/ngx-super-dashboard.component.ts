@@ -1,4 +1,3 @@
-import { CommonModule, NgFor, NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,21 +6,22 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ChartSelectionChangedEvent, ChartType } from 'angular-google-charts';
+import { NgxSuperDashboardService } from './ngx-super-dashboard.service';
 
 declare const google: any;
 
 @Component({
   selector: 'lib-ngx-super-dashboard',
   template: `
-    <div class="fields-bar">
+    <div
+      [ngClass]="
+        dynamicFormFieldData && dynamicFormFieldData.length > 7
+          ? 'formsBar fields-bar-second'
+          : 'formsBar fields-bar'
+      "
+    >
       <form [formGroup]="dynamicForm" (ngSubmit)="onSubmitForm()">
         <div class="grid-label-bar" *ngIf="dynamicForm.value.length != 0">
           <ng-container
@@ -30,7 +30,7 @@ declare const google: any;
             <div
               [ngClass]="field.className ? field.className + ' list' : 'list'"
               *ngIf="
-                field.lovDataList && field.lovDataList.length > 0;
+                field.hasOwnProperty('lovDataList') && field.lovDataList;
                 else dynamicNonDropdown
               "
             >
@@ -71,26 +71,24 @@ declare const google: any;
 
           <div class="list lastList">
             <div class="lable">
-              *Accounts in Actuals <br />
-              *Ammount in Lakhs
+              {{ noteText }}
             </div>
           </div>
         </div>
       </form>
     </div>
-
-    <div class="grid-container">
+    <div
+      class="horizontalTemp grid-container"
+      [style.margin-top]="dynamicFormFieldData.length > 7 ? '4.4rem' : '3rem'"
+    >
       <div
         class="grid-area-countCards"
         *ngIf="cardConfig && cardConfig.length > 0"
       >
         <ng-container *ngFor="let item of cardConfig; let j = index">
           <div
-            [ngClass]="
-              item.className
-                ? item.className + ' card card-border-left'
-                : 'card card-border-left'
-            "
+            [ngClass]="item.className ? item.className + ' card' : 'card'"
+            [style.background-color]="cardColors[j]"
           >
             <div class="card-header">
               <h3>{{ item.title }}</h3>
@@ -103,82 +101,149 @@ declare const google: any;
       </div>
 
       <div
-        [ngClass]="
-          gridTwoConfig && gridTwoConfig !== null && gridTwoConfig !== undefined
-            ? 'grid-area-chart'
-            : 'grid-area-chart grid-area-expand'
-        "
+        id="{{ 'expand' + i }}"
+        class="grid-area-chart"
+        *ngFor="let chart of chartsConfig; let i = index"
       >
-        <ng-container *ngFor="let chart of chartsConfig">
-          <div
-            [ngClass]="
-              chart.className
-                ? chart.className + ' card card-border-bottom'
-                : 'card card-border-bottom'
-            "
-          >
-            <div class="card-header">
-              <h3>{{ chart.cardTitle }}</h3>
-            </div>
-            <google-chart
-              style="width: 100%; height: 100%"
-              [type]="chart.type"
-              [data]="chart.chartData"
-              [columns]="chart.chartOptionData.myColumns"
-              [options]="chart.chartOptionData.chartOptions"
-              (select)="selectedChart($event, chart.type)"
-            ></google-chart>
-          </div>
-        </ng-container>
-
-        <ng-container
-          *ngIf="
-            gridOneConfig && gridOneConfig != null && gridOneConfig != undefined
+        <!-- <ng-container *ngFor="let chart of chartsConfig; let i = index"> -->
+        <div
+          [ngClass]="
+            chart.className
+              ? chart.className + ' card card-border-bottom'
+              : 'card card-border-bottom'
           "
         >
-          <div
-            [ngClass]="
-              gridOneConfig.className
-                ? gridOneConfig.className + 'card card-border-bottom'
-                : 'card card-border-bottom'
-            "
-          >
-            <div class="card-header">
-              <h3>{{ gridOneConfig.cardTitle }}</h3>
-            </div>
-            <div class="card-content">
-              <table class="grid-table">
-                <thead>
-                  <th *ngFor="let head of gridOneConfig.tableColumnHeadings">
-                    {{ head }}
-                  </th>
-                </thead>
-                <tbody>
-                  <ng-container *ngIf="gridOneConfig.tableData; else noData">
-                    <tr
-                      *ngFor="
-                        let item of gridOneConfig.tableData;
-                        let i = index
-                      "
-                    >
-                      <td *ngFor="let val of gridOneConfig.tableDataKey">
-                        {{ item[val] }}
-                      </td>
-                    </tr>
-                  </ng-container>
-                  <ng-template #noData>
-                    <tr>
-                      <td colspan="5">No Data</td>
-                    </tr>
-                  </ng-template>
-                </tbody>
-              </table>
-            </div>
+          <div class="card-header">
+            <h3>{{ chart.cardTitle }}</h3>
           </div>
-        </ng-container>
+          <google-chart
+            style="width: 100%; height: 80%"
+            [type]="chart.type"
+            [data]="chart.chartData"
+            [columns]="chart.chartOptionData.myColumns"
+            [options]="chart.chartOptionData.chartOptions"
+            (select)="selectedChart($event, chart.type)"
+          ></google-chart>
+        </div>
+        <div class="resizer" (click)="toggleExpand(i, 'expand' + i)">
+          <span class="resizeIcon" *ngIf="showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="15px"
+              viewBox="0 -960 960 960"
+              width="15px"
+              fill="#5f6368"
+            >
+              <path
+                d="M120-120v-320h80v184l504-504H520v-80h320v320h-80v-184L256-200h184v80H120Z"
+              />
+            </svg>
+            <span class="popupText">Expand</span>
+          </span>
+          <span class="resizeIcon" *ngIf="!showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#5f6368"
+            >
+              <path
+                d="M440-440v240h-80v-160H200v-80h240Zm160-320v160h160v80H520v-240h80Z"
+              />
+            </svg>
+            <span class="popupText">Collapse</span>
+          </span>
+        </div>
+        <!-- </ng-container> -->
       </div>
+
       <div
-        class="grid-area-tableRecords"
+        id="expand2"
+        [ngClass]="
+          gridTwoConfig
+            ? 'grid-area-tableOne'
+            : 'grid-area-tableOne gridTableOne'
+        "
+        *ngIf="
+          gridOneConfig && gridOneConfig != null && gridOneConfig != undefined
+        "
+      >
+        <div
+          [ngClass]="
+            gridOneConfig.className
+              ? gridOneConfig.className + 'card card-border-bottom'
+              : 'card card-border-bottom'
+          "
+        >
+          <div class="card-header">
+            <h3>{{ gridOneConfig.cardTitle }}</h3>
+          </div>
+          <div class="card-content">
+            <table class="grid-table">
+              <thead>
+                <th *ngFor="let head of gridOneConfig.tableColumnHeadings">
+                  {{ head }}
+                </th>
+              </thead>
+              <tbody>
+                <ng-container *ngIf="gridOneConfig.tableData; else noData">
+                  <tr
+                    *ngFor="let item of gridOneConfig.tableData; let i = index"
+                  >
+                    <td *ngFor="let val of gridOneConfig.tableDataKey">
+                      {{ item[val] }}
+                    </td>
+                  </tr>
+                </ng-container>
+                <ng-template #noData>
+                  <tr>
+                    <td colspan="5">No Data</td>
+                  </tr>
+                </ng-template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="resizer" (click)="toggleExpand(2, 'expand2')">
+          <span class="resizeIcon" *ngIf="showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="15px"
+              viewBox="0 -960 960 960"
+              width="15px"
+              fill="#5f6368"
+            >
+              <path
+                d="M120-120v-320h80v184l504-504H520v-80h320v320h-80v-184L256-200h184v80H120Z"
+              />
+            </svg>
+            <span class="popupText">Expand</span>
+          </span>
+          <span class="resizeIcon" *ngIf="!showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#5f6368"
+            >
+              <path
+                d="M440-440v240h-80v-160H200v-80h240Zm160-320v160h160v80H520v-240h80Z"
+              />
+            </svg>
+            <span class="popupText">Collapse</span>
+          </span>
+        </div>
+      </div>
+
+      <div
+        id="expand3"
+        [ngClass]="
+          gridOneConfig
+            ? 'grid-area-tableRecords'
+            : 'grid-area-tableRecords gridTableTwo'
+        "
         *ngIf="
           gridTwoConfig && gridTwoConfig !== null && gridTwoConfig !== undefined
         "
@@ -186,8 +251,8 @@ declare const google: any;
         <div
           [ngClass]="
             gridTwoConfig.className
-              ? gridTwoConfig.className + ' card card-border-top'
-              : 'card card-border-top'
+              ? gridTwoConfig.className + ' card card-border-bottom'
+              : 'card card-border-bottom'
           "
         >
           <div class="card-header">
@@ -214,7 +279,10 @@ declare const google: any;
                       [attr.colspan]="gridTwoConfig.tableDataKey.length"
                       class="colspan"
                     >
-                      <tr *ngFor="let item of parent.childData">
+                      <tr
+                        class="subTableRow"
+                        *ngFor="let item of parent.childData"
+                      >
                         <td *ngFor="let key of gridTwoConfig.tableDataKey">
                           {{ item[key] }}
                         </td>
@@ -226,24 +294,178 @@ declare const google: any;
             </table>
           </div>
         </div>
+        <div class="resizer" (click)="toggleExpand(3, 'expand3')">
+          <span class="resizeIcon" *ngIf="showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="15px"
+              viewBox="0 -960 960 960"
+              width="15px"
+              fill="#5f6368"
+            >
+              <path
+                d="M120-120v-320h80v184l504-504H520v-80h320v320h-80v-184L256-200h184v80H120Z"
+              />
+            </svg>
+            <span class="popupText">Expand</span>
+          </span>
+          <span class="resizeIcon" *ngIf="!showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#5f6368"
+            >
+              <path
+                d="M440-440v240h-80v-160H200v-80h240Zm160-320v160h160v80H520v-240h80Z"
+              />
+            </svg>
+            <span class="popupText">Collapse</span>
+          </span>
+        </div>
       </div>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
+      .hideGrids {
+        display: none !important;
+      }
+      .resizeIcon {
+        position: relative;
+      }
+
+      .resizeIcon .popupText {
+        visibility: hidden;
+        width: 50px;
+        background-color: black;
+        font-size: 10px;
+        color: #fff;
+        text-align: center;
+        padding: 5px 0;
+        border-radius: 5px;
+        position: absolute;
+        bottom: 125%;
+        left: 35%;
+        transform: translateX(-50%);
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .resizeIcon .popupText::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: black transparent transparent transparent;
+      }
+
+      .resizeIcon:hover .popupText {
+        visibility: visible;
+        opacity: 1;
+      }
+      .template-box {
+        background: #111249;
+        position: fixed;
+        right: -45px;
+        transform: rotate(90deg);
+        top: 50%;
+        text-align: center;
+      }
+
+      .expanded {
+        grid-area: 2 / 1 / -1 / -1 !important;
+        justify-content: center;
+      }
+
+      .expanded google-chart {
+        width: 100% !important;
+        height: 90% !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .expanded.grid-area-tableOne .card,
+      .expanded.grid-area-chart .card {
+        width: 99%;
+        height: 400px;
+        overflow: auto;
+      }
+
+      .expanded.grid-area-tableRecords .card {
+        width: 99%;
+        height: 100%;
+      }
+      .expanded.grid-area-tableRecords .card-content {
+        height: 500px;
+        max-height: 1000px;
+        overflow: auto;
+      }
+
+      .resizer {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+        visibility: hidden;
+        background: #ead4d429;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0px 1px 10px 0px rgb(0 0 0 / 38%);
+      }
+
+      .form-ctrl {
+        display: block;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #fff;
+        background-color: #111249;
+        background-clip: padding-box;
+        border-radius: 6px;
+        text-align: center;
+      }
+      .subTableRow {
+        display: inline-table;
+        width: 100%;
+      }
       .fields-bar {
+        height: 48px;
+      }
+      .formsBar {
         width: 100vw;
         position: fixed;
         top: 0;
         z-index: 999;
         background-color: #111249;
         display: flex;
+        align-items: center;
       }
-      .grid-label-bar {
+      .fields-bar-second {
+        height: 75px;
+      }
+      .fields-bar-second .grid-label-bar {
+        grid-template-columns: auto auto auto auto auto auto;
+        padding: 2px 14px;
+      }
+      .fields-bar .grid-label-bar {
         grid-template-columns: auto auto auto auto auto auto auto;
         gap: 10px;
         padding: 5px 14px;
+      }
+      .grid-label-bar {
+        gap: 10px;
         display: grid;
         color: #fff;
         font-size: 13px;
@@ -283,9 +505,10 @@ declare const google: any;
         color: #fff;
         width: 118px;
         padding: 0 6px;
+        font-size: 12px;
       }
       select::-ms-expand {
-        display: none; /* Hide the default arrow in Internet Explorer 10 and Internet Explorer 11 */
+        display: none;
       }
       select:focus-visible {
         outline: none;
@@ -293,7 +516,7 @@ declare const google: any;
 
       input::placeholder {
         color: #fff;
-        opacity: 1; /* Firefox */
+        opacity: 1;
       }
       option {
         background-color: #fff;
@@ -306,68 +529,153 @@ declare const google: any;
       .grid-container {
         height: auto !important;
         display: grid;
-        grid-template-columns: auto auto auto auto auto;
-        grid-template-rows: auto auto auto;
-        gap: 12px;
+        grid-template-columns: auto auto;
+        grid-template-rows: auto auto auto auto;
+        gap: 0px;
         background-color: #dddddd96;
-        padding: 7px;
+        padding: 7px 0px;
         margin-top: 3rem;
       }
-
       .card {
         box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2);
-        margin: 5px 0 12px 0;
+        margin: 5px 6px 12px;
+        width: 20%;
         text-align: center;
         background-color: #fff;
-        width: 18vw;
         border-radius: 8px;
+        position: relative;
       }
 
       .card .card-header {
-        padding: 14px;
+        padding: 10px;
         border-bottom: 1px solid #ddd;
         background: none;
         font-weight: 600;
         font-size: 15px;
       }
+
       .card .card-content {
-        padding: 14px;
+        padding: 10px;
       }
+
       .card h3 {
         font-size: 15px;
         margin: 0;
       }
+
       .card p {
         font-weight: 600;
-        font-size: 15px;
-        color: #853163;
+        font-size: 24px;
+        color: #f0f2f4;
+        margin-top: 0px;
+        margin-bottom: 4px;
       }
 
+      .grid-area-countCards .card-content {
+        padding: 2px 10px 10px;
+      }
+
+      .grid-area-countCards .card-header {
+        height: 42px;
+        display: flex;
+        border-bottom: none;
+        align-items: center;
+        justify-content: center;
+        padding: 0px 10px !important;
+      }
+
+      .grid-area-countCards h3 {
+        font-size: 14px;
+        color: #f0f2f4;
+      }
       .grid-area-countCards {
-        grid-area: 1/1/2/2;
+        grid-area: 1/1/2/-1;
+        display: flex;
+      }
+
+      .grid-area-tableOne {
+        grid-area: 3/1/-1/2;
+        position: relative;
+        display: flex;
+        transition: grid-area 0.3s ease-in-out;
+      }
+
+      .gridTableOne {
+        grid-area: 3/1/-1/-1;
+      }
+
+      .grid-area-tableOne .card {
+        width: 100%;
+        height: 300px;
+        transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
       }
 
       .grid-area-chart {
-        grid-area: 1/2/3/4;
+        position: relative;
+        display: flex;
+        transition: grid-area 0.3s ease-in-out;
+      }
+
+      #expand0 {
+        grid-area: 2/1/3/2;
+      }
+
+      #expand1 {
+        grid-area: 2/2/3/-1;
+      }
+
+      .grid-area-chart:hover .resizer,
+      .grid-area-tableRecords:hover .resizer,
+      .grid-area-tableOne:hover .resizer {
+        visibility: visible;
       }
 
       .grid-area-chart .card {
-        width: 40vw;
-        height: 40vh;
-        padding-bottom: 8px;
+        width: 100%;
+        height: 300px;
+        transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
       }
 
       .grid-area-tableRecords {
-        grid-area: 1/4/3/-1;
+        grid-area: 3/2/-1/-1;
+        position: relative;
+        display: flex;
+        transition: grid-area 0.3s ease-in-out;
+      }
+
+      .gridTableTwo {
+        grid-area: 3/1/-1/-1;
       }
 
       .grid-area-tableRecords .card {
-        overflow: auto;
-        width: 38vw;
-        height: 100%;
+        width: 100%;
+        height: 300px;
+        overflow: hidden;
+        transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
       }
+
       .grid-area-tableRecords .card-content {
-        padding: 12px 10px;
+        height: 230px;
+        max-height: 1000px;
+        overflow: auto;
+      }
+      ::-webkit-scrollbar {
+        display: block;
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.4);
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent;
       }
 
       .grid-table {
@@ -462,43 +770,62 @@ declare const google: any;
         border-bottom-width: var(--card-border-width) !important;
         border-bottom-style: solid;
       }
-      .grid-area-expand {
-        grid-area: 1/2/3/-1;
-      }
-      .grid-area-expand .card {
-        width: 100%;
-        height: 54vh;
-      }
     `,
   ],
 })
 export class NgxSuperDashboardComponent implements OnInit {
-  dynamicForm!: FormGroup;
+  public dynamicForm!: FormGroup;
+  showIcon: boolean = true;
+
   @Input({ required: true })
   dynamicFormFieldData!: DynamicFieldsData[];
 
   @Input({ required: true }) cardConfig!: DynamicCardsData[];
-
   @Input({ required: true }) chartsConfig!: DashardCardConfig[];
-  @Input() gridOneConfig!: CardTableDataConfig;
+  @Input() gridOneConfig!: CardTableConfig;
   @Input() gridTwoConfig!: GridTableConfigData;
+
+  @Input()
+  noteText!: string;
+
+  cardColors: string[] = CardsColors;
 
   @Output() onSelect = new EventEmitter<SelectedFieldValueEmit>();
   @Output() onSubmit = new EventEmitter<Record<string, string | number>>();
-
   @Output() onSelectChart = new EventEmitter<ChartEventEmitOnSelect>();
 
-  constructor(private fb: FormBuilder) {
-    console.log(`NgxSuperDashboardComponent : constructor`);
-  }
+  constructor(
+    private fb: FormBuilder,
+    private ngxService: NgxSuperDashboardService
+  ) {}
 
   ngOnInit() {
     //create dynamic fields and add validation for each field
     this.createForm();
   }
 
-  typeCheck(data: any) {
-    return data && Array.isArray(data) ? false : true;
+  toggleExpand(index: number, idName: string) {
+    const content: HTMLElement = <HTMLElement>document.getElementById(idName);
+    if (content.classList.contains('expanded')) {
+      content.classList.remove('expanded');
+      this.showIcon = !this.showIcon;
+      for (let i = 0; i < 4; i++) {
+        if (i != index) {
+          let hideContent = <HTMLElement>document.getElementById('expand' + i);
+          hideContent.classList.remove('hideGrids');
+        }
+      }
+    } else {
+      content.classList.add('expanded');
+      this.showIcon = !this.showIcon;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      for (let i = 0; i < 4; i++) {
+        if (i != index) {
+          let hideContent = <HTMLElement>document.getElementById('expand' + i);
+          hideContent.classList.add('hideGrids');
+        }
+      }
+    }
   }
 
   createForm() {
@@ -506,10 +833,14 @@ export class NgxSuperDashboardComponent implements OnInit {
     this.dynamicFormFieldData.forEach((field: DynamicFieldsData) => {
       formGrp = {
         ...formGrp,
-        [field.formControlKey]: ['', Validators.compose([Validators.required])],
+        [field.formControlKey]: [
+          field.selected ? field.selected : '',
+          Validators.compose([Validators.required]),
+        ],
       };
     });
-    this.dynamicForm = this.fb.group(formGrp);
+    this.dynamicForm = new FormBuilder().group(formGrp);
+    this.ngxService.getFormGroup = this.dynamicForm;
   }
 
   // emit selected field value
@@ -532,16 +863,40 @@ export class NgxSuperDashboardComponent implements OnInit {
   }
 }
 
+export const CardsColors = [
+  '#d962be',
+  '#3e85f5',
+  '#5cdc79fc',
+  '#dc815cfc',
+  '#5cc0dc',
+  '#7b556c',
+  '#c39e56',
+];
+
 export const DynamicFieldsConfiguration = (
-  fieldConfig: DynamicFieldsData[]
+  fieldConfig?: DynamicFieldsData[]
 ): DynamicFieldsData[] => {
   if (fieldConfig) return fieldConfig;
   else return testFieldData;
 };
 
 export const testFieldData: DynamicFieldsData[] = [
-  { lable: 'Zone', formControlKey: 'zone', lovDataList: [] },
-  { lable: 'Branch', formControlKey: 'branch', lovDataList: [] },
+  {
+    lable: 'Zone',
+    formControlKey: 'zone',
+    lovDataList: [
+      { value: '1', name: 'Chennai' },
+      { value: '2', name: 'Pune' },
+    ],
+  },
+  {
+    lable: 'Branch',
+    formControlKey: 'branch',
+    lovDataList: [
+      { value: '1', name: 'Porur' },
+      { value: '2', name: 'Tnagar' },
+    ],
+  },
   { lable: 'Teams', formControlKey: 'teams', lovDataList: [] },
   { lable: 'Product', formControlKey: 'product', lovDataList: [] },
   { lable: 'Start Date', formControlKey: 'startDate', type: 'date' },
@@ -558,6 +913,7 @@ export interface DynamicFieldsData {
   formControlKey: string;
   lovDataList?: AppLOVData[];
   type?: string;
+  selected?: string | number;
   className?: string;
 }
 
@@ -575,7 +931,7 @@ export interface SetDataOption {
 
 // interfaces for grid cardsList:
 export const DynamicCardsConfiguration = (
-  cardConfig: DynamicCardsData[]
+  cardConfig?: DynamicCardsData[]
 ): DynamicCardsData[] => {
   if (cardConfig) return cardConfig;
   else return testCardData;
@@ -596,7 +952,7 @@ export interface DynamicCardsData {
   className?: string;
 }
 
-export const dashboardChartsConfig = (
+export const DashboardChartsConfig = (
   chartsData?: DashardCardConfig[]
 ): DashardCardConfig[] => {
   if (chartsData) {
@@ -615,7 +971,7 @@ export const testChartsData: DashardCardConfig[] = [
 
       chartOptions: {
         title: `Monthly Wise`,
-        chartArea: { width: '50%' },
+        chartArea: { width: '70%', height: '70%' },
         hAxis: {
           title: `Modules`,
           minValue: 0,
@@ -624,7 +980,6 @@ export const testChartsData: DashardCardConfig[] = [
           title: 'No. Of Amount',
         },
         seriesType: 'bars',
-        // series: { 4: { type: "line" } },
       },
     },
     chartData: [
@@ -678,9 +1033,6 @@ export interface DashardCardConfig {
 export type ChartDataType = string | number;
 
 export interface ChartOptionsConfig {
-  // myColumns: Array<
-  //   string | ColumnsType[] | string | Record<string, string | number>
-  // >;
   myColumns: any;
   chartOptions: ChartAxisData;
 }
@@ -708,8 +1060,8 @@ export interface ChartEventEmitOnSelect {
 }
 
 export const CardTableDataConfig = (
-  cardTableData?: CardTableDataConfig
-): CardTableDataConfig => {
+  cardTableData?: CardTableConfig
+): CardTableConfig => {
   if (cardTableData) {
     return cardTableData;
   } else {
@@ -753,7 +1105,7 @@ export const testCardTable = {
   ],
 };
 
-export interface CardTableDataConfig {
+export interface CardTableConfig {
   cardTitle?: string;
   tableColumnHeadings: string[];
   tableDataKey: string[];
@@ -765,14 +1117,13 @@ export interface GridTableConfigData {
   title?: string;
   tableHeading: string[];
   tableDataKey: string[];
-  // tableData: Array<Record<string, string | number | []>>;
   tableData: any;
   className?: string;
 }
 
 export type ChildDataType = string | number;
 
-export const gridTableDataConfig = (
+export const GridTableDataConfig = (
   gridTableData?: GridTableConfigData
 ): GridTableConfigData => {
   if (gridTableData) {
